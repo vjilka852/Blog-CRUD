@@ -23,22 +23,34 @@
         @guest
             <h3 class="text-center mb-4">Login</h3>
 
-            @if($errors->any())
-                <div class="alert alert-danger">
-                    {{ $errors->first() }}
-                </div>
-            @endif
+            {{-- General Error Message --}}
+          
 
-            <form method="POST" action="{{ route('login.post') }}">
+            <form method="POST" action="{{ route('login.post') }}" novalidate>
                 @csrf
                 <div class="mb-3">
                     <label>Email</label>
-                    <input type="email" class="form-control" name="email" required autofocus>
+                    <input type="email" 
+                           class="form-control @error('email') is-invalid @enderror" 
+                           name="email" 
+                           value="{{ old('email') }}" 
+                           required autofocus>
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
+
                 <div class="mb-3">
                     <label>Password</label>
-                    <input type="password" class="form-control" name="password" required>
+                    <input type="password" 
+                           class="form-control @error('password') is-invalid @enderror" 
+                           name="password" 
+                           required>
+                    @error('password')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
+
                 <button type="submit" class="btn btn-primary w-100">Login</button>
             </form>
 

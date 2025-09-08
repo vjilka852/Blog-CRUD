@@ -33,9 +33,10 @@
 
                 {{-- Password --}}
                 <div class="mb-3">
-                    <label class="form-label">Password (leave blank if unchanged)</label>
-                    <input type="password" 
+                    <label class="form-label">Password </label>
+                    <input type="text" 
                            name="password" 
+                           value="{{ old('password', $user->password) }}"
                            class="form-control @error('password') is-invalid @enderror">
                     @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>

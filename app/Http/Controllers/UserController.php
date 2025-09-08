@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Member;  
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -150,25 +151,47 @@ class UserController extends Controller
      * Custom login check (only active users can log in).
      */
     public function login(Request $request)
+{
+    $request->validate([
+        'email'    => 'required|email',
+        'password' => 'required',
+    ]);
+
+    $member = Member::where('email', $request->email)->first();
+
+    if (!$member) {
+        return back()->withErrors(['email' => 'Please create an account first.']);
+    }
+
+    if (!Hash::check($request->password, $member->password)) {
+        return back()->withErrors(['password' => 'Invalid password.']);
+    }
+
+    auth()->login($member);
+
+    return redirect()->route('dashboard');
+}
+
+
+    public function register(Request $request)
     {
+        // Validate input
         $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:members,email',
+            'password' => 'required|min:6|confirmed',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        // Create new member
+        Member::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'status'   => 'active',
+        ]);
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return back()->withErrors(['email' => 'Invalid credentials.']);
-        }
-
-        if ($user->status === 'inactive') {
-            return back()->withErrors(['status' => 'Your account is inactive. Please contact admin.']);
-        }
-
-        // login user (you can use Auth::login here)
-        auth()->login($user);
-
-        return redirect()->route('dashboard')->with('success', 'Login successful.');
+        // After registration, redirect to login
+        return redirect()->route('login')
+                         ->with('success', 'Account created successfully! Please login.');
     }
 }

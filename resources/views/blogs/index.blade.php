@@ -37,7 +37,7 @@
                     @foreach($users as $user)
                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                     @endforeach
-                </select>
+                </select>   
             </div>
     
             {{-- <div class="col-md-4">

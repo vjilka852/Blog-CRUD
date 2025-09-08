@@ -70,36 +70,51 @@
             </select>
         </div>
 
-        <!-- Links -->
-        <div class="mb-3">
-            <label class="form-label">Links</label>
-            <div id="links-wrapper">
-                @foreach($blog->links ?? [] as $i => $link)
-                <div class="link-item mb-2">
-                    <input type="text" name="links[{{ $i }}][title]" value="{{ $link['title'] }}" class="form-control mb-2">
-                    <input type="url" name="links[{{ $i }}][url]" value="{{ $link['url'] }}" class="form-control">
-                </div>
-                @endforeach
+     <!-- Links -->
+<div class="mb-3">
+    <label class="form-label">Links</label>
+    <div id="links-wrapper">
+        @foreach($blog->links ?? [] as $i => $link)
+        <div class="link-item mb-2 d-flex gap-2 align-items-start">
+            <div class="flex-grow-1">
+                <input type="text" name="links[{{ $i }}][title]" value="{{ $link['title'] }}" class="form-control mb-2">
+                <input type="url" name="links[{{ $i }}][url]" value="{{ $link['url'] }}" class="form-control">
             </div>
-            <button type="button" class="btn btn-secondary mt-2" onclick="addLink()">+ Add More</button>
+            <button type="button" class="btn btn-danger btn-sm mt-1" onclick="removeLink(this)">
+                &times;
+            </button>
         </div>
-
-        <button type="submit" class="btn btn-success">Update Blog</button>
-        <a href="{{ route('blogs.index') }}" class="btn btn-secondary">Cancel</a>
-    </form>
+        @endforeach
+    </div>
+    <button type="button" class="btn btn-secondary mt-2" onclick="addLink()">+ Add More</button>
+</div>
+<button type="submit" class="btn btn-success">Update Blog</button>
+<a href="{{ route('blogs.index') }}" class="btn btn-secondary">Cancel</a>
+</form>
 </div>
 
 <script>
+
 let linkIndex = {{ count($blog->links ?? []) }};
+
 function addLink() {
     const wrapper = document.getElementById('links-wrapper');
     const html = `
-        <div class="link-item mb-2">
-            <input type="text" name="links[${linkIndex}][title]" placeholder="Link Title" class="form-control mb-2">
-            <input type="url" name="links[${linkIndex}][url]" placeholder="Link URL" class="form-control">
+        <div class="link-item mb-2 d-flex gap-2 align-items-start">
+            <div class="flex-grow-1">
+                <input type="text" name="links[${linkIndex}][title]" placeholder="Link Title" class="form-control mb-2">
+                <input type="url" name="links[${linkIndex}][url]" placeholder="Link URL" class="form-control">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm mt-1" onclick="removeLink(this)">
+                &times;
+            </button>
         </div>`;
     wrapper.insertAdjacentHTML('beforeend', html);
     linkIndex++;
+}
+
+function removeLink(button) {
+    button.closest('.link-item').remove();
 }
 </script>
 </body>
