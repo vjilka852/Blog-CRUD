@@ -18,18 +18,26 @@ return new class extends Migration
             $table->string('email')->unique(); // Required, Unique
             $table->string('password'); 
 
-            $table->string('mobile', 15);
+            $table->string('mobile', 15)->nullable();
 
-            $table->date('dob'); // Required
-            $table->enum('gender', ['male', 'female', 'other']); // Required
+            $table->date('dob')->nullable(); // Required
+            $table->enum('gender', ['male', 'female', 'other'])->nullable(); // Required
 
-            $table->string('profile_image'); 
+           // migration file for users table
+           $table->string('profile_image')->nullable();
+
+
 
             $table->enum('status', ['active', 'inactive'])->default('active'); 
             // Active = can login, Inactive = blocked
 
             $table->timestamps();
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('profile_image')->nullable()->change();
+        });
+        
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

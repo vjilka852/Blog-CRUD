@@ -49,16 +49,22 @@
             <div id="imagePreview" class="d-flex flex-wrap mt-2"></div>
         </div>
 
-        <!-- Tags -->
-        <div class="mb-3">
-            <label for="tags" class="form-label">Tags / Categories</label>
-            <select name="tags[]" id="tags" class="selectpicker form-control" multiple data-live-search="true" title="Choose tags...">
-                <option value="Technology" {{ in_array('Technology', old('tags', [])) ? 'selected' : '' }}>Technology</option>
-                <option value="Lifestyle" {{ in_array('Lifestyle', old('tags', [])) ? 'selected' : '' }}>Lifestyle</option>
-                <option value="Education" {{ in_array('Education', old('tags', [])) ? 'selected' : '' }}>Education</option>
-                <option value="Business" {{ in_array('Business', old('tags', [])) ? 'selected' : '' }}>Business</option>
-            </select>
-        </div>
+       <!-- Tags -->
+<div class="mb-3">
+    <label for="tags" class="form-label">Tags / Categories</label>
+    <select name="tags[]" id="tags"
+        class="selectpicker form-control"
+        multiple
+        data-live-search="true"
+        data-selected-text-format="count"
+        title="Choose tags...">
+        <option value="Technology" {{ in_array('Technology', old('tags', [])) ? 'selected' : '' }}>Technology</option>
+        <option value="Lifestyle" {{ in_array('Lifestyle', old('tags', [])) ? 'selected' : '' }}>Lifestyle</option>
+        <option value="Education" {{ in_array('Education', old('tags', [])) ? 'selected' : '' }}>Education</option>
+        <option value="Business" {{ in_array('Business', old('tags', [])) ? 'selected' : '' }}>Business</option>
+    </select>
+</div>
+
 
         <!-- User ID -->
         <div class="mb-3">
@@ -102,6 +108,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 
 <script>
+    $(document).ready(function () {
+    $('.selectpicker').selectpicker();
+
+    // Auto-close dropdown after selecting an option
+    $('#tags').on('changed.bs.select', function () {
+        $(this).selectpicker('toggle'); // closes dropdown
+    });
+});
+
     $(document).ready(function () {
         $('.selectpicker').selectpicker();
     });

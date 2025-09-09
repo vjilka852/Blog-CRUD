@@ -10,32 +10,24 @@ use App\Models\Member;
 
 class AuthController extends Controller
 {
-    public function showLoginForm()
-    {
-        return view('login');
-    }
+   
 
-    public function showRegisterForm()
-    {
-        return view('register');
-    }
+    // public function login(Request $request)
+    // {
+    //     $credentials = $request->validate([
+    //         'email' => 'required|email',
+    //         'password' => 'required',
+    //     ]);
 
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+    //     if (Auth::attempt($credentials)) {
+    //         $request->session()->regenerate();
+    //         return redirect()->route('users.index');
+    //     }
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->route('users.index');
-        }
-
-        return back()->withErrors([
-            'email' => 'Invalid credentials.',
-        ]);
-    }
+    //     return back()->withErrors([
+    //         'email' => 'Invalid credentials.',
+    //     ]);
+    // }
 
     public function logout(Request $request)
     {
@@ -45,22 +37,22 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:members,email',
-            'password' => 'required|min:6|confirmed',
-        ]);
+    // public function register(Request $request)
+    // {
+    //     $request->validate([
+    //         'name'     => 'required|string|max:255',
+    //         'email'    => 'required|email|unique:members,email',
+    //         'password' => 'required|min:6|confirmed',
+    //     ]);
     
-        Member::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+    //     Member::create([
+    //         'name'     => $request->name,
+    //         'email'    => $request->email,
+    //         'password' => Hash::make($request->password),
+    //     ]);
     
-        return redirect()->route('login')->with('success', 'Account created successfully. Please login.');
-    }
+    //     return redirect()->route('login')->with('success', 'Account created successfully. Please login.');
+    // }
 
   
 }

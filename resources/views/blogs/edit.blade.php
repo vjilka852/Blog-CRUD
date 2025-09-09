@@ -59,7 +59,7 @@
         
 
         <!-- User -->
-        <div class="mb-3">
+        {{-- <div class="mb-3">
             <label for="user_id" class="form-label">User</label>
             <select name="user_id" id="user_id" class="form-select" required>
                 @foreach($users as $user)
@@ -68,7 +68,12 @@
                     </option>
                 @endforeach
             </select>
-        </div>
+        </div> --}}
+        <div class="mb-3">
+            <label class="form-label">User</label>
+            <input type="text" class="form-control" value="{{ Auth::user()->name }}" disabled>
+            <input type="hidden" name="user_id" value="{{ Auth::id() }}">
+        </div>  
 
      <!-- Links -->
 <div class="mb-3">

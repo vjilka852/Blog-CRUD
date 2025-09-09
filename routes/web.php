@@ -11,20 +11,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// ✅ Dashboard (requires login & email verification)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-// ✅ Authentication routes
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
 
-Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+Route::get('/login', [UserController::class, 'showLoginForm'])->name('login.form');
+Route::post('/login', [UserController::class, 'login'])->name('login');
 
-// ✅ Logout (POST only for security)
+
+
+Route::get('/register', [UserController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [UserController::class, 'register'])->name('register.post');
+
+//  Logout (POST only for security)
 Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
@@ -32,7 +29,7 @@ Route::post('/logout', function () {
     return redirect('/login');
 })->name('logout');
 
-// ✅ Protected routes (only for authenticated users)
+// Protected routes (only for authenticated users)
 Route::middleware('auth')->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

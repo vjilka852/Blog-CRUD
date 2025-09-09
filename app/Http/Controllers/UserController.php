@@ -3,26 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Member;  
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    public function showLoginForm()
+    {
+        return view('login');
+    }
+
+    public function showRegisterForm()
+    {
+        return view('register');
+    }
     /**
      * Display a listing of users.
      */
     public function index()
     {
-        $users = User::latest()->paginate(10);
+        if (Auth::id() === 1) {
+            //  Admin sees all users
+            $users = User::latest()->paginate(10);
+        } else {
+            //  Normal user sees only their own record
+            $users = User::where('id', Auth::id())->paginate(1);
+        }
+    
         return view('users.index', compact('users'));
     }
-
-   
-
-  
+    
 
     /**
      * Show the form for creating a new user.
@@ -36,47 +49,42 @@ class UserController extends Controller
      * Store a newly created user in storage.
      */
     public function store(Request $request)
-{
-    // validate request
-    // dd($request->all());
-    $validated = $request->validate([
-        'name'          => 'required|string|max:20',
-        'email'         => 'required|email|unique:users,email',
-        'password'      => [
-            'required',
-            'min:8',
-            'regex:/^(?=.*[a-zA-Z])(?=.*[0-9]).+$/', // must contain letters & numbers
-        ],
-        'mobile'        => 'required|digits:10',
+    {
+        $validated = $request->validate([
+            'name'          => 'required|string|max:20',
+            'email'         => 'required|email|unique:users,email',
+            'password'      => [
+                'required',
+                'min:8',
+                'regex:/^(?=.*[a-zA-Z])(?=.*[0-9]).+$/',
+            ],
+            'mobile'        => 'required|digits:10',
+            'dob'           => 'required|date',
+            'gender'        => ['required', Rule::in(['male', 'female', 'other'])],
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'status'        => ['required', Rule::in(['active', 'inactive'])],
+        ]);
 
-        'dob'           => 'required|date',
-        'gender'        => ['required', Rule::in(['male', 'female', 'other'])],
-        'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        'status'        => ['required', Rule::in(['active', 'inactive'])],
-    ]);
+        // handle profile image
+        $imagePath = null;
+        if ($request->hasFile('profile_image')) {
+            $imagePath = $request->file('profile_image')->store('profiles', 'public');
+        }
 
-    // handle profile image
-    $imagePath = null;
-    if ($request->hasFile('profile_image')) {
-        $imagePath = $request->file('profile_image')->store('profiles', 'public');
+        // save user in DB
+        User::create([
+            'name'          => $validated['name'],
+            'email'         => $validated['email'],
+            'password'      => Hash::make($validated['password']),
+            'mobile'        => $validated['mobile'],
+            'dob'           => $validated['dob'],
+            'gender'        => $validated['gender'],
+            'profile_image' => $imagePath,
+            'status'        => $validated['status'],
+        ]);
+
+        return redirect()->route('users.index')->with('success', 'User registered successfully.');
     }
-    
-
-    // save user in DB
-    User::create([  
-        'name'          => $validated['name'],
-        'email'         => $validated['email'],
-        'password'      => Hash::make($validated['password']),
-        'mobile'       => $request->mobile,
-        'dob'           => $validated['dob'],
-        'gender'        => $validated['gender'],
-        'profile_image' => $imagePath,
-        'status'        => $validated['status'],
-    ]);
-
-    return redirect()->route('users.index')->with('success', 'User registered successfully.');
-}
-
 
     /**
      * Display the specified user.
@@ -116,17 +124,15 @@ class UserController extends Controller
 
         $data = $request->only(['name', 'email', 'mobile', 'dob', 'gender', 'status']);
 
-        // update password if provided
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
 
-        // update profile image
         if ($request->hasFile('profile_image')) {
             if ($user->profile_image) {
                 Storage::disk('public')->delete($user->profile_image);
             }
-            $data['profile_image'] = $request->file('profile_image')->store('profile_images', 'public');
+            $data['profile_image'] = $request->file('profile_image')->store('profiles', 'public');
         }
 
         $user->update($data);
@@ -151,47 +157,58 @@ class UserController extends Controller
      * Custom login check (only active users can log in).
      */
     public function login(Request $request)
-{
-    $request->validate([
-        'email'    => 'required|email',
-        'password' => 'required',
-    ]);
-
-    $member = Member::where('email', $request->email)->first();
-
-    if (!$member) {
-        return back()->withErrors(['email' => 'Please create an account first.']);
-    }
-
-    if (!Hash::check($request->password, $member->password)) {
-        return back()->withErrors(['password' => 'Invalid password.']);
-    }
-
-    auth()->login($member);
-
-    return redirect()->route('dashboard');
-}
-
-
-    public function register(Request $request)
     {
-        // Validate input
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:members,email',
-            'password' => 'required|min:6|confirmed',
+            'email'    => 'required|email',
+            'password' => 'required|min:8',
         ]);
 
-        // Create new member
-        Member::create([
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email does not exist. Please register first.'])->withInput();
+        }
+
+        if ($user->status !== 'active') {
+            return back()->withErrors(['email' => 'Your account is inactive. Contact admin.'])->withInput();
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['password' => 'Incorrect password.'])->withInput();
+        }
+
+        Auth::login($user);
+
+        return redirect()->route('users.index')->with('success', 'Login successful!');
+    }
+
+    /**
+     * Register new user (basic register form).
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => [
+                'required',
+                'min:8',
+                'regex:/^(?=.*[a-zA-Z])(?=.*[0-9]).+$/',
+                'confirmed',
+            ],
+        ]);
+
+        User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'mobile'   => '0000000000',
+            'dob'      => now()->toDateString(),
+            'gender'   => 'other',
+            'profile_image' => null,
             'status'   => 'active',
         ]);
 
-        // After registration, redirect to login
-        return redirect()->route('login')
-                         ->with('success', 'Account created successfully! Please login.');
+        return redirect()->route('login')->with('success', 'Account created successfully! Please login.');
     }
 }

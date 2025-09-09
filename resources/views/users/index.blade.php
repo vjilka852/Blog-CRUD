@@ -21,7 +21,7 @@
                             <th>ID</th>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Password</th>
+                            <th>Created Blogs</th>
                             <th>Mobile</th>
                             <th>DOB</th>
                             <th>Gender</th>
@@ -37,7 +37,7 @@
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>
-                                    <span class="text-muted small">••••••••</span>
+                                   {{ $user->blogs->count() }}
                                 </td>
                                 <td>{{ $user->mobile }}</td>
                                 <td>{{ $user->dob }}</td>

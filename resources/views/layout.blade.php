@@ -50,7 +50,7 @@
             <ul class="navbar-nav">
                 @auth
                     <li class="nav-item mx-2">
-                        <span class="nav-link text-white">Hello, {{ Auth::user()->name }}</span>
+                        <span class="nav-link text-white">Welcome, {{ Auth::user()->name }}</span>
                     </li>
                     <li class="nav-item">
                         <form method="POST" action="{{ route('logout') }}">

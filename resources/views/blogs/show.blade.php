@@ -127,13 +127,17 @@
             @endif
 
             <!-- Author -->
-            <div class="author-box mt-4">
-                <img src="{{ $blog->user->profile_image 
-                            ? asset('storage/'.$blog->user->profile_image) 
-                            : 'https://via.placeholder.com/60' }}" alt="Author">
-                <div>
+            <img src="{{ optional($blog->user)->profile_image 
+            ? asset('storage/' . $blog->user->profile_image) 
+            : 'https://via.placeholder.com/60' }}" 
+     alt="Author"
+     width="60"
+     height="60"
+     class="rounded-circle">
+
                     <strong>{{ $blog->user->name ?? 'Unknown Author' }}</strong>
-                    <p class="mb-0 text-muted">{{ $blog->user->email ?? '' }}</p>
+                    <p>Author: {{ $blog->user->name }}</p>
+
                 </div>
             </div>
         </div>

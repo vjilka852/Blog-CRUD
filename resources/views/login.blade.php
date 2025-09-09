@@ -26,7 +26,7 @@
             {{-- General Error Message --}}
           
 
-            <form method="POST" action="{{ route('login.post') }}" novalidate>
+            <form method="POST" action="{{ route('login') }}" novalidate>
                 @csrf
                 <div class="mb-3">
                     <label>Email</label>
@@ -52,6 +52,8 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">Login</button>
+               
+
             </form>
 
             {{-- Register option --}}
