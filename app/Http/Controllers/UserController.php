@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\userImport;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -32,8 +34,23 @@ class UserController extends Controller
             //  Normal user sees only their own record
             $users = User::where('id', Auth::id())->paginate(1);
         }
-    
+        
         return view('users.index', compact('users'));
+    }
+
+    /**
+     * to import the data from the excel sheet
+     */
+
+    public function import(Request $request) 
+    {
+            $request->validate([
+                'file' => 'required|mimes:xlsx,xls,csv'
+            ]);
+
+            Excel::import(new userImport, $request->file('file'));
+
+            return back()->with('success', 'User Imported successfully!');
     }
     
 
@@ -56,7 +73,7 @@ class UserController extends Controller
             'password'      => [
                 'required',
                 'min:8',
-                'regex:/^(?=.*[a-zA-Z])(?=.*[0-9]).+$/',
+                'regex:/^(?=.*[a-zA-Z])(?=.*[0-9]).+$/',    
             ],
             'mobile'        => 'required|digits:10',
             'dob'           => 'required|date',

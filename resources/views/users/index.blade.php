@@ -11,7 +11,16 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <a href="{{ route('users.create') }}" class="btn btn-success mb-3">+ Add User</a>
+            {{-- <a href="{{ route('users.create') }}" class="btn btn-success mb-3">+ Add User</a> --}}
+            <form action="{{ route('users.import') }}" method="POST" enctype="multipart/form-data" class="d-inline">
+                @csrf
+                <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-control mb-2" style="width: 250px; display:inline-block;">
+                <button type="submit" class="btn btn-success">Import Excel</button>
+                <button type="submit" class="btn btn-primary">Export Excel</button>
+            </form>
+            
+
+
 
             {{-- Scrollable table --}}
             <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
@@ -37,7 +46,7 @@
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>
-                                   {{ $user->blogs->count() }}
+                                   {{ $user->blogs->count()}}
                                 </td>
                                 <td>{{ $user->mobile }}</td>
                                 <td>{{ $user->dob }}</td>

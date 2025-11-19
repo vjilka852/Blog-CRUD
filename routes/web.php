@@ -42,3 +42,9 @@ Route::middleware('auth')->group(function () {
     // Blogs CRUD
     Route::resource('blogs', BlogController::class);
 });
+
+// Route::get('/users', function () {
+//     return view('user');
+// });
+
+Route::post('users/import', [UserController::class, 'import'])->name('users.import');
